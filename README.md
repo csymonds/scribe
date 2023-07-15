@@ -1,6 +1,11 @@
 # scribe
 Transcribes .mp4 files using OpenAI's Whisper API
 
+This will create a UI that lets you use a filepicker to select multiple .mp4 files.
+Currently that's the only filetype it handles (cause that's what I work with) but it would not be hard to support others.
+It will copy the file into smaller chunks to ensure they do not exceed Whisper's filesize limit.
+You have the option of whether you want to keep the chunks or not.
+
 ## Setup and Running Scribe
 
 1. If you don’t have Python installed, [install it from here](https://www.python.org/downloads/)
