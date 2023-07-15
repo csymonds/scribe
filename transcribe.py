@@ -88,13 +88,13 @@ def transcribe_videos():
         # update the completed_label with the file name
         update_completed_label(save_file_path)
         print("Transcription complete for:", save_file_path)
+        #cleanup the segmented audio files
+        if delete_audio_files.get() == 1:
+            print("Cleaning up temporary files in:", tmp_output_dir)
+            shutil.rmtree(tmp_output_dir)
         #ensure print buffers flush before next loop
         root.update_idletasks()
     update_completed_label("done!")
-    #cleanup the segmented audio files
-    if delete_audio_files.get() == 1:
-        print("Cleaning up temporary files in:", tmp_output_dir)
-        shutil.rmtree(tmp_output_dir)
     tmp_output_dir = ""
     working = False
 
@@ -170,7 +170,7 @@ hourglass_label = tk.Label(root, text="")
 hourglass_label.pack(pady=10)
 
 # add a UI checkmark to toggle whether the user wants to delete the processed audio files
-delete_audio_files_checkbutton = tk.Checkbutton(root, text="Delete audio files after transcription", variable=delete_audio_files)
+delete_audio_files_checkbutton = tk.Checkbutton(root, text="Cleanup temp files after transcription", variable=delete_audio_files)
 delete_audio_files_checkbutton.pack(pady=10)
 
 # label that will display the files that have completed transcription
