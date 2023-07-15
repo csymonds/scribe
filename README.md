@@ -41,14 +41,14 @@ Transcribes .mp4 files using OpenAI's Whisper API
 
    Step 2: Copy in your key to the respective file
 
-      Add your [OpenAI API key](https://beta.openai.com/account/api-keys) to the newly created `key_openai.txt` file
+    Add your [OpenAI API key](https://beta.openai.com/account/api-keys) to the newly created `key_openai.txt` file
 
 7. Run scribe - the UI will let you pick the files you want to transcribe
     ```
     $ python.exe .\transcribe.py
     ```
 
-7. Don'r forget to deactivate when you have finished!
+7. Don't forget to deactivate when you have finished!
    ```
    $ deactivate
    ```
