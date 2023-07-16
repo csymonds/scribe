@@ -1,5 +1,5 @@
-# This file allows the user to transcribe an .mp4 video file to a .txt file using the openAI Whisper API.
-# the user can specify the path to the video file and the path to the output text file.
+# This file allows the user to transcribe any media file supported by pydub to a .txt file using the openAI Whisper API.
+# the user can specify the path to the media file and the path to the output text file.
 
 #imports
 import shutil
@@ -21,7 +21,9 @@ def process_audio(video_path):
     global tmp_output_dir
     # first let's create a directory to store the segmented audio files named after the video file
     # we'll use the video file name without the extension and replace space with underscore
-    video_chunk_base_name = video_path.split("/")[-1].replace(".mp4", "").replace(" ", "_") + "_chunks"
+    video_chunk_base_name = video_path.split("/")[-1].split(".")[0].replace(" ", "_") + "_chunks"
+    # now let's save the file type
+    video_file_type = video_path.split("/")[-1].split(".")[1]
     print("Creating directory:", video_chunk_base_name)
     # now let's capture the path where the file is located without the file name
     video_dir_path = video_path.replace(video_path.split("/")[-1], "")
@@ -34,7 +36,7 @@ def process_audio(video_path):
     
     # now let's segment the audio into 10 minute chunks
     output_chunks = []
-    input_file = AudioSegment.from_file(video_path, "mp4")
+    input_file = AudioSegment.from_file(video_path)
     duration_in_milliseconds = len(input_file)
     current_pos = 0
     # PyDub handles time in milliseconds
@@ -42,10 +44,10 @@ def process_audio(video_path):
     while current_pos < duration_in_milliseconds:
         chunk_data = input_file[current_pos:(current_pos+ten_minutes)]
         # let's name the chunk based on the video file name and the current position
-        chunk_name = "{}_{}-{}.mp4".format(video_chunk_base_name, current_pos, current_pos+ten_minutes)
+        chunk_name = "{}_{}-{}.{}".format(video_chunk_base_name, current_pos, current_pos+ten_minutes,video_file_type)
         chunk_full_path = os.path.join(tmp_output_dir, chunk_name)
         output_chunks.append(chunk_full_path)
-        chunk_data.export(chunk_full_path, format="mp4")
+        chunk_data.export(chunk_full_path, format=video_file_type)
         current_pos += (ten_minutes - 1000) # subtract 1 second to avoid overlap
     return output_chunks
 
@@ -82,8 +84,8 @@ def transcribe_videos():
             # append the transcription to the full transcription
             full_transcription += transcription_chunk['text']
         
-        # save the transcription to a text file
-        save_file_path = video_path.replace(".mp4", ".txt")
+        # save the transcription to a text file replacing the type with .txt
+        save_file_path = video_path.replace(video_path.split("/")[-1], video_path.split("/")[-1].split(".")[0] + ".txt")
         utils.save_file(save_file_path, full_transcription)
         # update the completed_label with the file name
         update_completed_label(save_file_path)
@@ -114,7 +116,9 @@ def update_completed_label(file_name):
 # open file dialog to allow user to select multiple files
 def open_file_dialog():
     global video_paths
-    video_paths = filedialog.askopenfilenames(filetypes=[("Video files", "*.mp4")])
+    # open a dile dialog to select multiple files. Allow either .mp4 or .mp3 files
+    video_paths = filedialog.askopenfilenames(title = "Select files",filetypes = (("media files", "*.mp4 *.mp3 *.wav *.flac *.ogg *.aac *.aiff *.caf *.m4a")
+,("all files","*.*")))
     if video_paths:
         print("Selected file:", video_paths)
         update_label()
@@ -152,6 +156,9 @@ def animate_label():
 
 root = tk.Tk()
 delete_audio_files = tk.IntVar()
+
+# Title the window
+root.title("Scribe")
 
 #button to open file dialog
 open_button = tk.Button(root, text="Open Video", command=open_file_dialog)

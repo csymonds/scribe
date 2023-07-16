@@ -1,10 +1,13 @@
 # scribe
-Transcribes .mp4 files using OpenAI's Whisper API
+Transcribes media files using OpenAI's Whisper API
 
-This will create a UI that lets you use a filepicker to select multiple .mp4 files.
-Currently that's the only filetype it handles (cause that's what I work with) but it would not be hard to support others.
+This will create a UI that lets you use a filepicker to select multiple media files.
+The supported filetypes are any common types shared by Whisper and pydub's Audiosegment
+These include: *.mp4 *.mp3 *.wav *.flac *.ogg *.aac *.aiff *.caf and *.m4a
 It will copy the file into smaller chunks to ensure they do not exceed Whisper's filesize limit.
 You have the option of whether you want to keep the chunks or not.
+It will then save the concatenated transcription to a .txt file
+** As of 07/16 I have not built any robust error handling into as of yet, so use at your own risk **
 
 ## Setup and Running Scribe
 
