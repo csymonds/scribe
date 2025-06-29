@@ -5,7 +5,6 @@
 import shutil
 import os
 import utils
-import openai
 import threading
 from pydub import AudioSegment
 import tkinter as tk
@@ -14,7 +13,6 @@ from tkinter import filedialog
 # global variables
 video_paths = ""
 tmp_output_dir = ""
-openAIKeyFile = 'key_openai.txt'
 working = False
 
 def process_audio(video_path):
@@ -53,10 +51,14 @@ def process_audio(video_path):
 
 
 # this function transcribes the video file to a text file using the openAI API.
-def transcribe_video(video_path):
+def transcribe_video(video_path, client):
     # load the model
-    audio_file= open(video_path, "rb")
-    return openai.Audio.transcribe("whisper-1", audio_file)
+    with open(video_path, "rb") as audio_file:
+        return client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file,
+            response_format="text"
+        )
 
 def transcribe_videos_thread():
     global working
@@ -68,8 +70,18 @@ def transcribe_videos_thread():
 # This function transcribes the video file to a text file using the openAI API.
 def transcribe_videos():
     global video_paths, tmp_output_dir, delete_audio_files, working
-    # load the openAI key
-    openai.api_key = utils.open_file(openAIKeyFile)
+    # load the openAI key from environment variable and create client
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        print("Error: OPENAI_API_KEY environment variable not set!")
+        print("Please set your OpenAI API key as an environment variable.")
+        update_completed_label("Error: OPENAI_API_KEY not set!")
+        working = False
+        return
+    
+    # Create OpenAI client
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key)
 
     # for each video file, transcribe it and save the output to a text file using the original file name with .txt extension
     for video_path in video_paths:
@@ -80,9 +92,9 @@ def transcribe_videos():
         full_transcription = ""
         for path in audio_chunks:
             # transcribe the video
-            transcription_chunk = transcribe_video(path)
+            transcription_result = transcribe_video(path, client)
             # append the transcription to the full transcription
-            full_transcription += transcription_chunk['text']
+            full_transcription += transcription_result
         
         # save the transcription to a text file replacing the type with .txt
         save_file_path = video_path.replace(video_path.split("/")[-1], video_path.split("/")[-1].split(".")[0] + ".txt")
