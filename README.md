@@ -12,7 +12,12 @@ It will then save the concatenated transcription to a .txt file
 
 **API Update:** Updated to use the modern OpenAI Python library (v1.0+) with the new client-based approach for Whisper API calls.
 
-** As of 07/16 I have not built any robust error handling into as of yet, so use at your own risk **
+**Reliability Improvements:** Added comprehensive error handling to prevent crashes:
+- ✅ Graceful handling of missing API keys (no more crashes)
+- ✅ Better memory management to prevent segmentation faults
+- ✅ Individual chunk error recovery (one failed chunk won't stop the whole process)
+- ✅ Proper cleanup of temporary files even when errors occur
+- ✅ Detailed logging for troubleshooting issues
 
 ## Setup and Running Scribe
 
@@ -99,3 +104,23 @@ It will then save the concatenated transcription to a .txt file
    ```
    $ deactivate
    ```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+**Segmentation Fault/Crashes:**
+- **Cause**: Usually memory issues with large audio files or corrupted files
+- **Solution**: The app now has better memory management and will skip problematic files instead of crashing
+
+**"No transcription generated" warnings:**
+- **Cause**: Audio file may be corrupted, too quiet, or in an unsupported format
+- **Solution**: Try converting the file to MP4 or MP3 format first
+
+**GUI won't start:**
+- **Cause**: Python installation missing tkinter support
+- **Solution**: Follow the tkinter troubleshooting steps in section 8 above
+
+**Transcription stops mid-process:**
+- **Cause**: Network issues or OpenAI API rate limiting
+- **Solution**: Check your internet connection and API quota. The app will now continue with remaining files even if one fails.
